@@ -97,6 +97,12 @@ func getStackPath(stack StackIdentifier, components ...string) string {
 	return path.Join(append([]string{prefix}, components...)...)
 }
 
+// listPolicyPacksPath returns the API path to for the given organization with the given
+// components joined with path separators and appended to the organization root.
+func listPolicyPacksPath(orgName string) string {
+	return fmt.Sprintf("/api/orgs/%s/policypacks", orgName)
+}
+
 // publishPolicyPackPath returns the API path to for the given organization with the given
 // components joined with path separators and appended to the organization root.
 func publishPolicyPackPath(orgName string) string {
@@ -495,6 +501,16 @@ func (pc *Client) StartUpdate(ctx context.Context, update UpdateIdentifier,
 	}
 
 	return resp.Version, resp.Token, nil
+}
+
+// ListPolicyPacks lists all `PolicyPack` the organization has in the Pulumi service.
+func (pc *Client) ListPolicyPacks(ctx context.Context, orgName string) (apitype.ListPolicyPacksResponse, error) {
+	var resp apitype.ListPolicyPacksResponse
+	err := pc.restCall(ctx, "GET", listPolicyPacksPath(orgName), nil, nil, &resp)
+	if err != nil {
+		return resp, errors.Wrapf(err, "List policy packs failed")
+	}
+	return resp, nil
 }
 
 // PublishPolicyPack publishes a `PolicyPack` to the Pulumi service.
